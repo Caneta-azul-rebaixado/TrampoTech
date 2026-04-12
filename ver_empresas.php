@@ -152,6 +152,122 @@ menu a:hover {
     transform: translateY(-1px);
     border-color: rgba(255,255,255,0.28);
 }
+
+.filtros-form select {
+    padding: 10px 12px;
+
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+
+    background: rgba(255,255,255,0.08);
+    color: white;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    outline: none;
+    appearance: none;
+
+    /* mantém mesmo tamanho dos inputs */
+    height: 42px;
+}
+
+/* hover igual input */
+.filtros-form select:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* seta personalizada */
+.filtros-form select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+/* opções do dropdown */
+.filtros-form select option {
+    background: #1e1e1e;
+    color: white;
+}
+
+/* ===== FORM FILTROS ===== */
+        .filtros-form {
+            width: 90%;
+            max-width: 900px;
+
+            margin-bottom: 20px;
+
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+
+            padding: 16px;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+
+            align-items: flex-start; /* NÃO deixa crescer tudo junto */
+        }
+
+        .filtros-form input,
+        .filtros-form button,
+        .ts-wrapper {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .filtros-form input {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .filtros-form input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .filtros-form button {
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+
+            background: orange;
+            color: black;
+            font-weight: bold;
+
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filtros-form button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ===== TOM SELECT (CORRIGIDO) ===== */
+        .ts-wrapper.multi .ts-control {
+            min-height: 42px;
+            max-height: 80px;      /* LIMITA TAMANHO */
+            overflow-y: auto;      /* SCROLL INTERNO */
+
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .ts-control input {
+            color: white !important;
+        }
     </style>
 </head>
 <body>
@@ -177,7 +293,7 @@ menu a:hover {
 </menu> -->    
 
 <a>Filtros</a>
-<form method="GET" action="ver_empresas.php">
+<form method="GET" action="ver_empresas.php" class="filtros-form">
     <input type="text" name="nome_social" placeholder="Pesquisar por nome social" value="<?php echo htmlspecialchars($nome_social); ?>">
 
     <select name="regiao">

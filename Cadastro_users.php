@@ -9,7 +9,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
     $email = $_POST['email'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
 
-    // verifica se email já existe
+    // ========================
+    // VERIFICA EMAIL
+    // ========================
     $stmt = $mysqli->prepare("SELECT id FROM login WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -19,24 +21,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
         $mensagem = "Este email já está cadastrado.";
     } else {
 
-        // insere login
-        $stmt = $mysqli->prepare("
-            INSERT INTO login (email, senha, tipo)
-            VALUES (?, ?, ?)
-        ");
-        $stmt->bind_param("sss", $email, $senha, $tipo);
-        $stmt->execute();
-
-        $id = $mysqli->insert_id;
-
+        // ========================
+        // ALUNO
+        // ========================
         if ($tipo === "aluno") {
 
             $nome      = $_POST['nome'];
             $ra        = $_POST['ra'];
             $data_nasc = $_POST['data_nasc'];
-            $regiao_aln = $_POST['regiao'];
-            $telefone_aln = $_POST['telefone_aln'];
-            $experiencia_aln = $_POST['experiencia'];
+            $regiao    = $_POST['regiao'];
+            $telefone  = $_POST['telefone_aln'];
+            $experiencia = $_POST['experiencia'];
 
             // verifica RA
             $stmt = $mysqli->prepare("SELECT id FROM alunos WHERE ra = ?");
@@ -48,7 +43,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
                 $mensagem = "Este RA já está cadastrado.";
             } else {
 
-                // INSERT aluno
+                // cria login
+                $stmt = $mysqli->prepare("
+                    INSERT INTO login (email, senha, tipo)
+                    VALUES (?, ?, ?)
+                ");
+                $stmt->bind_param("sss", $email, $senha, $tipo);
+                $stmt->execute();
+
+                $id = $mysqli->insert_id;
+
+                // cria aluno
                 $stmt = $mysqli->prepare("
                     INSERT INTO alunos (aluno_id, nome, ra, data_nasc, regiao, telefone, experiencia)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -60,45 +65,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
                     $nome,
                     $ra,
                     $data_nasc,
-                    $regiao_aln,
-                    $telefone_aln,
-                    $experiencia_aln
+                    $regiao,
+                    $telefone,
+                    $experiencia
                 );
 
                 $stmt->execute();
 
-                $aluno_id = $mysqli->insert_id;
-
-                // habilidades
+                // habilidades (CORRIGIDO)
                 if (isset($_POST['habilidades'])) {
+                   $aluno_id = $mysqli->insert_id;
+
                     foreach ($_POST['habilidades'] as $req_id) {
 
-                        $req_id = (int) $req_id;
+                        $req_id = (int)$req_id;
 
                         $stmt = $mysqli->prepare("
                             INSERT INTO aluno_habilidades (aluno_id, requisito_id)
                             VALUES (?, ?)
                         ");
+
+                        // ✅ AGORA CERTO
                         $stmt->bind_param("ii", $aluno_id, $req_id);
                         $stmt->execute();
                     }
                 }
 
+                // LOGIN AUTOMÁTICO
                 $_SESSION['id'] = $id;
                 $_SESSION['tipo'] = 'aluno';
+
                 header("Location: ver_vagas.php");
                 exit;
             }
+        }
 
-        } elseif ($tipo === "empresa") {
+        // ========================
+        // EMPRESA
+        // ========================
+        elseif ($tipo === "empresa") {
 
             $nome_fantasia = $_POST['nome_empresa'];
             $razao_social  = $_POST['razao_social'];
             $cnpj          = $_POST['cnpj'];
-            $regiao_emp    = $_POST['regiao'];
-            $endereco_emp  = $_POST['endereco'];
-            $descricao_emp = $_POST['descricao_empresa'];
-            $telefone_emp  = $_POST['telefone_emp'];
+            $regiao        = $_POST['regiao'];
+            $endereco      = $_POST['endereco'];
+            $descricao     = $_POST['descricao_empresa'];
+            $telefone      = $_POST['telefone_emp'];
 
             // verifica CNPJ
             $stmt = $mysqli->prepare("SELECT id FROM empresas WHERE cnpj = ?");
@@ -110,14 +123,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
             $stmt = $mysqli->prepare("SELECT id FROM empresas WHERE razao_social = ?");
             $stmt->bind_param("s", $razao_social);
             $stmt->execute();
-            $check_razao_social = $stmt->get_result();
+            $check_razao = $stmt->get_result();
 
             if ($check_cnpj->num_rows > 0) {
                 $mensagem = "Este CNPJ já está cadastrado.";
-            } elseif ($check_razao_social->num_rows > 0) {
+            } elseif ($check_razao->num_rows > 0) {
                 $mensagem = "Esta razão social já está cadastrada.";
             } else {
 
+                // cria login
+                $stmt = $mysqli->prepare("
+                    INSERT INTO login (email, senha, tipo)
+                    VALUES (?, ?, ?)
+                ");
+                $stmt->bind_param("sss", $email, $senha, $tipo);
+                $stmt->execute();
+
+                $id = $mysqli->insert_id;
+
+                // cria empresa
                 $stmt = $mysqli->prepare("
                     INSERT INTO empresas (empresa_id, nome_fantasia, razao_social, cnpj, telefone, regiao, endereco, descricao)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -129,22 +153,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['tipo'])) {
                     $nome_fantasia,
                     $razao_social,
                     $cnpj,
-                    $telefone_emp,
-                    $regiao_emp,
-                    $endereco_emp,
-                    $descricao_emp
+                    $telefone,
+                    $regiao,
+                    $endereco,
+                    $descricao
                 );
 
                 $stmt->execute();
 
+                // LOGIN AUTOMÁTICO
                 $_SESSION['id'] = $id;
                 $_SESSION['tipo'] = 'empresa';
+
                 header("Location: criar_vagas.php");
                 exit;
             }
         }
-
-        $mensagem = "Cadastro realizado com sucesso!";
     }
 }
 ?>
